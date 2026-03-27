@@ -331,7 +331,24 @@ def google_scholar_searcher(query):
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+
+    url = f"https://scholar.google.com/scholar?q={query}"
+
+    response = requests.get(url, headers=headers)
+
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    titles = []
+
+    for item in soup.find_all("h3"):
+        title = item.get_text()
+        if title:
+            titles.append(title)
+
+    return titles
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
