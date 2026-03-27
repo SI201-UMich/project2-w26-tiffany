@@ -377,7 +377,27 @@ class TestCases(unittest.TestCase):
         # 1) Check that listing 467507 has the correct policy number "STR-0005349".
         # 2) Check that listing 1944564 has the correct host type "Superhost" and room type "Entire Room".
         # 3) Check that listing 1944564 has the correct location rating 4.9.
-        pass
+        results = [get_listing_details(i) for i in html_list]
+
+        self.assertEqual(
+            get_listing_details("467507")["467507"]["policy_number"],
+            "STR-0005349"
+        )
+
+        self.assertEqual(
+            get_listing_details("1944564")["1944564"]["host_type"],
+            "Superhost"
+        )
+
+        self.assertEqual(
+            get_listing_details("1944564")["1944564"]["room_type"],
+            "Entire Room"
+        )
+
+        self.assertEqual(
+            get_listing_details("1944564")["1944564"]["location_rating"],
+            4.9
+        )
 
     def test_create_listing_database(self):
         # TODO: Check that each tuple in detailed_data has exactly 7 elements:
