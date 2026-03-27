@@ -179,7 +179,24 @@ def create_listing_database(html_path) -> list[tuple]:
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    listings = load_listing_results(html_path)
+
+    database = []
+
+    for title, listing_id in listings:
+        details = get_listing_details(listing_id)[listing_id]
+
+        database.append((
+            title,
+            listing_id,
+            details["policy_number"],
+            details["host_type"],
+            details["host_name"],
+            details["room_type"],
+            details["location_rating"]
+        ))
+
+    return database
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
