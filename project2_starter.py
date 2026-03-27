@@ -97,7 +97,68 @@ def get_listing_details(listing_id) -> dict:
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    file_path = os.path.join("html_files", f"listing_{listing_id}.html")
+
+    with open(file_path, "r", encoding="utf-8-sig") as f:
+        soup = BeautifulSoup(f, "html.parser")
+
+    text = soup.get_text()
+
+    policy_number = "Pending"
+
+    match = re.search(r"(20\d{2}-00\d{4}STR|STR-\d{7})", text)
+    if match:
+        policy_number = match.group(1)
+    elif "exempt" in text.lower():
+        policy_number = "Exempt"
+    elif "pending" in text.lower():
+        policy_number = "Pending"
+
+    host_type = "Superhost" if "superhost" in text.lower() else "regular"
+
+    host_name = ""
+
+    possible = soup.find_all(string=re.compile(r"Hosted by"))
+    if possible:
+        host_text = possible[0]
+        host_name = host_text.replace("Hosted by", "").strip()
+
+    if not host_name:
+        match = re.search(r"Hosted by ([A-Za-z &]+)", text)
+        if match:
+            host_name = match.group(1).strip()
+
+    room_type = "Entire Room"
+
+    subtitle = soup.find("h2")
+    if subtitle:
+        sub_text = subtitle.get_text()
+
+        if "Private" in sub_text:
+            room_type = "Private Room"
+        elif "Shared" in sub_text:
+            room_type = "Shared Room"
+
+    location_rating = 0.0
+
+    ratings = soup.find_all(string=re.compile("Location"))
+    for r in ratings:
+        parent = r.find_parent()
+        if parent:
+            match = re.search(r"(\d\.\d)", parent.get_text())
+            if match:
+                location_rating = float(match.group(1))
+                break
+
+    return {
+        listing_id: {
+            "policy_number": policy_number,
+            "host_type": host_type,
+            "host_name": host_name,
+            "room_type": room_type,
+            "location_rating": location_rating
+        }
+    }
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
