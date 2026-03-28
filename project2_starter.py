@@ -116,11 +116,10 @@ def get_listing_details(listing_id) -> dict:
         host_name = "Unknown"
 
     # Determine room type from subtitle
-    subtitle_tag = soup.find("div", class_="_1jlr81g")
-    subtitle_text = subtitle_tag.get_text() if subtitle_tag else ""
-    if "Private" in subtitle_text:
+    page_text = soup.get_text()
+    if "Private room" in page_text or "Private Room" in page_text:
         room_type = "Private Room"
-    elif "Shared" in subtitle_text:
+    elif "Shared room" in page_text or "Shared Room" in page_text:
         room_type = "Shared Room"
     else:
         room_type = "Entire Room"
