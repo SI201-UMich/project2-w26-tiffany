@@ -135,7 +135,7 @@ def get_listing_details(listing_id) -> dict:
     # Extract host name
     host_name_tag = soup.find("h2", string=re.compile("Hosted by"))
     if host_name_tag:
-        host_name = host_name_tag.get_text().replace("Entire loft hosted by", "").replace("Hosted by", "").strip()
+        host_name = re.sub(r".*[Hh]osted by\s*", "", host_name_tag.get_text()).strip()
     else:
         host_name = "Unknown"
 
