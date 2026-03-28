@@ -54,9 +54,10 @@ def load_listing_results(html_path) -> list[tuple]:
     for link in listing_links:
         href = link['href']
         if "/rooms/" in href:
-            listing_id = href.split("/")[2].split("?")[0]
-            if not listing_id.isdigit():
+            match = re.search(r'/rooms/(?:plus/)?(\d+)', href)
+            if not match:
                 continue
+            listing_id = match.group(1)
             title_tag = soup.find(id=f"title_{listing_id}")
             listing_title = title_tag.get_text().strip() if title_tag else "No Title"
             if (listing_title, listing_id) not in results:
