@@ -99,10 +99,34 @@ def get_listing_details(listing_id) -> dict:
         soup = BeautifulSoup(f, "html.parser")
 
     # Extract policy number
-    policy_tag = soup.find(string=re.compile(r"STR|Pending|Exempt"))
-    policy_text = policy_tag.strip() if policy_tag else "Pending"
-    match = re.search(r"(\d{4}-\d+STR|STR-\d+)", policy_text)
-    policy_number = match.group(0) if match else policy_text
+    policy_number = "Pending"
+    found = False
+
+    # First, try to find an actual STR number directly
+    for tag in soup.find_all(string=re.compile(r"\d{4}-\d+STR|STR-\d+", re.IGNORECASE)):
+        if tag.parent.name in ["script", "style"]:
+            continue
+        match = re.search(r"(\d{4}-\d+STR|STR-[\d]+)", tag.strip())
+        if match:
+            policy_number = match.group(0)
+            found = True
+            break
+
+    # If no STR number found, look for Pending or Exempt as standalone words
+    if not found:
+        for tag in soup.find_all(string=re.compile(r"^\s*(Pending|Exempt)\s*$", re.IGNORECASE)):
+            if tag.parent.name in ["script", "style"]:
+                continue
+            policy_text = tag.strip()
+            if re.search(r"Exempt", policy_text, re.IGNORECASE):
+                policy_number = "Exempt"
+            else:
+                policy_number = "Pending"
+            found = True
+            break
+
+    if not found:
+        policy_number = "None"
 
     # Determine host type
     host_type_tag = soup.find("span", string=re.compile("Superhost"))
